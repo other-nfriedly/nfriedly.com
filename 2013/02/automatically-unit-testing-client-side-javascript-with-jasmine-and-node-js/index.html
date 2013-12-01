@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Automatically unit testing client-side JavaScript with Jasmine and Node.js</title>
+<script>
+    // Github pages will send redirects to live.nfriedly.com, bypassing cloudfront. 
+    // This is to catch that and redirect the user back to cloudfront.
+    var l = window.location;
+    if (l.hostname == "live.nfriedly.com" && (l.href + document.cookie).indexOf('force-live') == -1) {
+        l.hostname = "nfriedly.com";
+    }
+</script>
+
+
+    <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js"></script><![endif]-->
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="DocPad v6.54.5" />
+<link rel="canonical" href="http://nfriedly.com/2013/02/automatically-unit-testing-client-side-javascript-with-jasmine-and-node-js/" />
+
+<script>
+function loadBackupCSS(url) {
+	var l = document.createElement('link');
+	l.rel = 'stylesheet';
+	l.href = url;
+	document.head.appendChild(l);
+}
+</script>
+<link href='http://fonts.googleapis.com/css?family=Raleway|Nobile:400,400italic,700' rel='stylesheet' type='text/css'>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/bootstrap.no-icons.min.css')">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/font-awesome/css/font-awesome.min.css')">
+<!--[if IE 7]>
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" rel="stylesheet">
+<![endif]-->
+<link href="/styles/font-mfizz/font-mfizz.css" rel="stylesheet">
+
+<link  rel="stylesheet" href="/styles/styles.css" />
+
+</head>
+<body class="post">
+
+<div class="over-footer">
+
+<div class="navbar-container">
+	<div class="container">
+		<a class="icon-stack menu-button pull-right" data-toggle="collapse" data-target="nav" href="#" title="Toggle navigation">
+			<i class="icon-sign-blank icon-stack-base"></i>
+			<i class="icon-reorder"></i>
+			<span class="sr-only">Toggle navigation</span>
+		</a>
+	</div>
+	<nav class="navbar collapse navbar-inverse navbar-static-top" role="navigation">
+		<div class="container">
+			<a class="navbar-brand" href="/">Nathan Friedly</a>
+			<ul class="nav navbar-nav">
+				<li><a href="/"><i class="icon-home"></i> Home</a></li>
+				<li><a href="/about/"><i class="icon-android"></i> About</a></li>
+				<li><a href="/portfolio/"><i class="icon-laptop"></i> Portfolio</a></li>
+				<li><a href="/techblog/"><i class="icon-terminal"></i> Tech blog</a></li>
+			</ul>
+		</div>
+	</nav>
+</div>
+
+<header class="jumbotron" style="background-image: url(http://farm3.staticflickr.com/2376/2243034754_0a9b40d2ff_b.jpg);">
+	<div class="container">
+		<h1><a href="/2013/02/automatically-unit-testing-client-side-javascript-with-jasmine-and-node-js/"> Automatically unit testing client-side JavaScript with Jasmine and Node.js</a></h1>
+		
+	</div>
+</header>
+
+
+<main class="container">
+<p><a href="automatically-unit-testing-client-side-javascript-with-jasmine-and-node-js"><img src="http://nfriedly.com/techblog/wp-content/uploads/2013/02/jasmine_flower.png" alt="jasmine_logo" width="91" height="90" class="alignleft left size-full wp-image-478" /></a> At <a href="http://sociablelabs.com">Sociable Labs</a>, we have hundreds JavaScript unit tests that run on every checkin. They output a <a href="http://www.junit.org/">JUnit</a>-compatible report that <a href="https://www.atlassian.com/software/bamboo/overview">Bamboo</a> can use to track stats and email us if anything failed. Here&#8217;s how we do it.</p>
+<!--more-->
+
+<p>Our JavaScript &#8220;build&#8221; process is basically a script that concatenated all of our JS files into a single big file.<sup><a href="#note-1"><a href="automatically-unit-testing-client-side-javascript-with-jasmine-and-node-js">1</a></a></sup> We added a flag to that process that would skip the <code>init.js</code> file and instead add a <code>module.exports</code> statement for easy inclusion in <a href="http://nodejs.org/">node.js</a>.</p>
+<p>With this setup, we can quickly run hundreds of <a href="http://pivotal.github.com/jasmine/">jasmine</a> specs from the command line in any environment we need &#8211; no browser necessary. Our full suite currently takes about 5 seconds to run.</p>
+<p>To start off, we installed the <a href="https://npmjs.org/package/jasmine-node">jasmine-node</a> and <a href="https://npmjs.org/package/jsdom">jsdom</a> NPM modules:</p>
+<pre class="highlighted"><code class="haskell"><span class="title">npm</span> install jasmine-node
+<span class="title">npm</span> install jsdom</code></pre>
+<p>This is the relevant part of our directory structure, the node_modules folder is top-level:</p>
+<pre class="highlighted"><code class="brainfuck"><span class="comment">build/</span>
+<span class="comment">node_modules/</span>
+ <span class="literal">-</span> <span class="string">.</span><span class="string">.</span><span class="string">.</span>
+<span class="comment">test/js/</span>
+ <span class="literal">-</span> <span class="comment">environment/</span>
+   <span class="literal">-</span> <span class="comment">jasmine_helper</span>.<span class="comment">js</span>
+ <span class="literal">-</span> <span class="comment">util/</span>
+   <span class="literal">-</span> <span class="comment">install_jsdom</span>.<span class="comment">sh</span>
+ <span class="literal">-</span> <span class="comment">gallery_spec</span>.<span class="comment">js</span>
+ <span class="literal">-</span> <span class="comment">ajax_spec</span>.<span class="comment">js</span>
+ <span class="literal">-</span> <span class="comment">etc</span>.</code></pre>
+<p><code>environment/jasmine_helper.js</code> is where most of the magic is:</p>
+<pre class="highlighted"><code class="javascript"><span class="keyword">var</span> jsdom = require(<span class="string">"jsdom"</span>);
+
+window = jsdom.jsdom(<span class="string">'&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;div id="rondavu_container"&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;'</span>).createWindow();
+
+<span class="keyword">if</span>(Object.keys(window).length === <span class="number">0</span>) {
+    <span class="comment">// this hapens if contextify, one of jsdom's dependencies doesn't install correctly</span>
+    <span class="comment">// (it installs different code depending on the OS, so it cannot get checked in.);</span>
+    <span class="keyword">throw</span> <span class="string">"jsdom failed to create a usable environment, try uninstalling and reinstalling it"</span>;
+}
+
+global.window = window;
+
+global.document = window.document;
+
+<span class="keyword">var</span> R = global.R = require(<span class="string">'../../build/rondavu_test_mode.js'</span>);</code></pre>
+<p>First we create a jsdom environment and verify that it works. (We&#8217;ll come back to that in a minute). Next we make the <code>window</code> and <code>document</code> variables global. Finally we include the slightly modified version of our compiled JS and set it in a global variable so that tests can hit it&#8217;s internal methods. Jasmine always runs all helper files before the spec files, so the global variables are guaranteed to exist by the time our tests run.</p>
+<p><code>util/install_jsdom.sh</code> is necessary because one of jsdom&#8217;s dependencies, contextify, installs differently on different operating systems. Because of that, we added node_modules/jsdom to the <code>.gitignore</code> file and run this script before running the js unit tests:</p>
+<pre class="highlighted"><code class="bash"><span class="shebang">#!/bin/bash</span>
+
+<span class="comment"># One of JSDOM's dependencies, contextify, cannot be checked in because it installs differently depending on the OS.</span>
+<span class="comment"># This script checks for the presence of JSDOM and installs it if it's missing</span>
+<span class="comment"># this line searches npm's local repository for jsdom</span>
+<span class="comment"># 2&gt; /dev/null is becuse NPM likes to complain about missing readme files in third-party packages</span>
+<span class="comment"># tr removes the blank line that npm puts out if jsdom isn't found</span>
+
+LS_RESULTS=$(npm --parseable ls jsdom 2&gt;/dev/null | tr -d <span class="string">'\n\'</span>)
+
+<span class="keyword">if</span> <span class="test_condition">[[ -n <span class="variable">$LS_RESULTS</span> ]]</span>; <span class="keyword">then</span>     <span class="comment"># -n tests to see if the argument is non empty</span>
+    <span class="keyword">echo</span> <span class="string">"jsdom is already installed, skipping"</span>
+<span class="keyword">else</span>
+    npm install jsdom
+<span class="keyword">fi</span></code></pre>
+<p>Note: the <em>correct</em> way to do the above is to check in the source and run <code>npm rebuild</code>. However, at the time I put this together, there was a bug that prevented that from working.</p>
+<p>Next up, the <code>*_spec.js</code> files. Basically, any file that ends in &#8220;_spec.js&#8221; will be run automatically by jasmine-node. These are just basic <a href="http://pivotal.github.com/jasmine/">jasmine</a> test suites. </p>
+<p>If you already have some jasmine specs written, theres&#8217;s a good chance they&#8217;ll just work. If not, now&#8217;s a great time to start <img src='http://nfriedly.com/techblog/wp-includes/images/smilies/icon_wink.gif' alt=';)' class='wp-smiley' /> </p>
+<p>Here&#8217;s a quick example from one of ours:</p>
+<pre class="highlighted"><code class="javascript">describe(<span class="string">"Gallery"</span>, <span class="keyword">function</span>() {
+    <span class="keyword">var</span> instance;
+
+    beforeEach(<span class="keyword">function</span>(){
+        instance = <span class="keyword">new</span> R.Module.Gallery(getConfig());
+    });
+
+    afterEach(<span class="keyword">function</span>(){
+        instance.destroy();
+        instance = <span class="literal">null</span>;
+    });
+
+    describe(<span class="string">"getTemplateData"</span>, <span class="keyword">function</span>(){
+        <span class="keyword">var</span> data;
+        beforeEach(<span class="keyword">function</span>(){
+           data = {mos: []};
+        });
+
+        it(<span class="string">"should include the current FB user ID"</span>, <span class="keyword">function</span>(){
+            <span class="keyword">var</span> USER_ID = <span class="string">"1234"</span>;
+            spyOn(R.FB,<span class="string">"getCurrentUserId"</span>).andReturn(USER_ID);
+
+            instance.getTemplateData(data);
+
+            expect(R.FB.getCurrentUserId).toHaveBeenCalled();
+            expect(data.current_user_id).toBe(USER_ID);
+        });
+
+        it(<span class="string">"should shuffle the mos when Gallery.ShuffleMos is true"</span>, <span class="keyword">function</span>(){
+            <span class="keyword">var</span> config = getConfig();
+            setParam(config, <span class="string">"Gallery.ShuffleMos"</span>, <span class="literal">true</span>);
+            spyOn(R.Util, <span class="string">"shuffle"</span>);
+
+            instance = <span class="keyword">new</span> R.Module.Gallery(config);
+            instance.getTemplateData(data);
+
+            expect(R.Util.shuffle).not.toHaveBeenCalled();
+        });
+    });
+
+    <span class="comment">// etc.</span>
+});</code></pre>
+<p>Running the tests is easy: </p>
+<ol>
+<li>Compile your JS file &#8211; <code>build/rondavu_test_mode.js</code> in our case.</li>
+<li>Ensure jsdom is installed locally by running <code>util/install_jsdom.sh</code>.</li>
+<li>Run the tests: <code>node_modules/jasmine-node/bin/jasmine-node test/js --forceexit</code></li>
+</ol>
+<p>The <code>--forceexit</code> option cuts a few seconds of idling off the end of the tests. If you want the JUnit-compatible XML report, add <code>--junitreport --output build/js-test-results.xml</code>. (You will likely need to change the path of the output file to wherever your build system is expecting it to be.)</p>
+<p>Finally, the process exit code will tell you if the tests passed or not, making it extremely easy to integrate into build systems. Here is our <a href="https://ant.apache.org/">ant</a> task:</p>
+<pre class="highlighted"><code class="xml">    <span class="tag">&lt;<span class="title">target</span> <span class="attribute">name</span>=<span class="value">"js.test"</span> <span class="attribute">description</span>=<span class="value">"builds a slightly modified version of our rondavu.js (skipping the init.js
+        file and adding a 'module.exports=R;') and then runs all test/js/*_spec.js unit tests."</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">exec</span> <span class="attribute">executable</span>=<span class="value">"scripts/js_builder/build_js.js"</span> <span class="attribute">dir</span>=<span class="value">"${basedir}"</span> <span class="attribute">failonerror</span>=<span class="value">"true"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"--test_mode"</span>/&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"--outfile"</span>/&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"build/rondavu_test_mode.js"</span>/&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"--verbose"</span>/&gt;</span>
+        <span class="tag">&lt;/<span class="title">exec</span>&gt;</span>
+
+        <span class="comment">&lt;!-- some of jsdom's dependencies are environment-specific, so we'll install it here if it's not already present --&gt;</span>
+        <span class="tag">&lt;<span class="title">chmod</span> <span class="attribute">file</span>=<span class="value">"test/js/util/install_jsdom.sh"</span> <span class="attribute">perm</span>=<span class="value">"ugo+rx"</span>/&gt;</span>
+        <span class="tag">&lt;<span class="title">exec</span> <span class="attribute">executable</span>=<span class="value">"test/js/util/install_jsdom.sh"</span> <span class="attribute">failonerror</span>=<span class="value">"true"</span>/&gt;</span>
+
+        <span class="tag">&lt;<span class="title">mkdir</span> <span class="attribute">dir</span>=<span class="value">"${build.test.unit.output}"</span>/&gt;</span>
+
+        <span class="tag">&lt;<span class="title">exec</span> <span class="attribute">executable</span>=<span class="value">"node_modules/jasmine-node/bin/jasmine-node"</span> <span class="attribute">failonerror</span>=<span class="value">"true"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"--forceexit"</span>/&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"test/js/"</span>/&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"--junitreport"</span>/&gt;</span>
+            <span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"--output"</span>/&gt;</span><span class="tag">&lt;<span class="title">arg</span> <span class="attribute">value</span>=<span class="value">"${build.test.unit.output}/TEST-javascript-results.xml"</span>/&gt;</span>
+        <span class="tag">&lt;/<span class="title">exec</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">target</span>&gt;</span></code></pre>
+<p>And there you have it. Happy testing!</p>
+<hr style="margin: 30px 0;" />
+
+<p>*<a name="note-1"><a href="automatically-unit-testing-client-side-javascript-with-jasmine-and-node-js">1</a>:</a> It&#8217;s actually a bit more complex that that &#8211; we generate a separate file for each customer with their configuration and whatever features they use. </p> 
+Also, we&#8217;ve recently switched from our custom js build script to <a href="http://requirejs.org/">require.js</a> and <a href="http://jamjs.org/">jam.js</a>, but we&#8217;re still working out the final kinks. Expect a followup post once we&#8217;re fully confident with the new setup <img src='http://nfriedly.com/techblog/wp-includes/images/smilies/icon_wink.gif' alt=';)' class='wp-smiley' /> </i></p>
+<p class="meta"><small class="photocredit"><b>Photo Credits:</b> Header photo by <a href="http://www.flickr.com/photos/calliope/2243034754/">liz west</a>.</small></p>
+
+
+
+
+</main>
+
+</div> <!-- .over-footer -->
+
+<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-5 contact">
+				<h3>Contact Nathan</h3>
+				
+				<ul>
+					<li>
+						<a id="email">
+							<span class="icon-stack">
+								<i class="icon-check-empty icon-stack-base"></i>
+								<i class="icon-envelope"></i> 
+							</span>
+							<span id="email-text">nathan @ (this website)</span>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://github.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-github"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://stackoverflow.com/users/933879/nathan-friedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-stackexchange"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.linkedin.com/in/nathanfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-linkedin"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.facebook.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-facebook"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://twitter.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-twitter"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://plus.google.com/+NathanFriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-google-plus"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://steamcommunity.com/id/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-gamepad"></i>
+						</a>
+					</li>
+				</ul>
+			</div>
+			
+			<div class="col-md-3 sitemap">
+				<h3>Site Map</h3>
+				<ul class="icons-ul">
+					<li><a href="/"><i class="icon-li icon-home"></i> Home</a></li>
+					<li><a href="/about/"><i class="icon-li icon-android"></i>About</a></li>
+					<li><a href="/portfolio/"><i class="icon-li icon-laptop"></i>Portfolio</a></li>
+					<li><a href="/techblog/"><i class="icon-li icon-terminal"></i>Tech blog</a></li>
+				</ul>
+			</div>
+			
+			<div class="col-md-4 info">
+				<p>&copy; Nathan Friedly 2013</p>
+				<p><a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" class="pull-left" /></a> Content licensed under <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution</a>.</p>
+				<p><a href="https://github.com/nfriedly/nfriedly.com"><i class="icon-github"></i> Source code available on Github</a> under a <a href="http://opensource.org/licenses/MIT">MIT License</a></p>
+				
+				<p>Built with <a href="http://docpad.org">DocPad</a>, 
+					<a href="http://getbootstrap.com/">Bootstrap</a>, 
+					and <a href="http://www.nodejs.org/">Node.js</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+</footer>
+<div class="chromefix"></div>
+
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js" defer></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+	<script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-1735765-3']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+
+<script defer="defer"  src="/scripts/email.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How to make Apache Ant tasks run in a default directory</title>
+<script>
+    // Github pages will send redirects to live.nfriedly.com, bypassing cloudfront. 
+    // This is to catch that and redirect the user back to cloudfront.
+    var l = window.location;
+    if (l.hostname == "live.nfriedly.com" && (l.href + document.cookie).indexOf('force-live') == -1) {
+        l.hostname = "nfriedly.com";
+    }
+</script>
+
+
+    <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js"></script><![endif]-->
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="DocPad v6.54.5" />
+<link rel="canonical" href="http://nfriedly.com/2012/02/how-to-make-ant-tasks-run-in-a-default-directory/" />
+
+<script>
+function loadBackupCSS(url) {
+	var l = document.createElement('link');
+	l.rel = 'stylesheet';
+	l.href = url;
+	document.head.appendChild(l);
+}
+</script>
+<link href='http://fonts.googleapis.com/css?family=Raleway|Nobile:400,400italic,700' rel='stylesheet' type='text/css'>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/bootstrap.no-icons.min.css')">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/font-awesome/css/font-awesome.min.css')">
+<!--[if IE 7]>
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" rel="stylesheet">
+<![endif]-->
+<link href="/styles/font-mfizz/font-mfizz.css" rel="stylesheet">
+
+<link  rel="stylesheet" href="/styles/styles.css" />
+
+</head>
+<body class="post">
+
+<div class="over-footer">
+
+<div class="navbar-container">
+	<div class="container">
+		<a class="icon-stack menu-button pull-right" data-toggle="collapse" data-target="nav" href="#" title="Toggle navigation">
+			<i class="icon-sign-blank icon-stack-base"></i>
+			<i class="icon-reorder"></i>
+			<span class="sr-only">Toggle navigation</span>
+		</a>
+	</div>
+	<nav class="navbar collapse navbar-inverse navbar-static-top" role="navigation">
+		<div class="container">
+			<a class="navbar-brand" href="/">Nathan Friedly</a>
+			<ul class="nav navbar-nav">
+				<li><a href="/"><i class="icon-home"></i> Home</a></li>
+				<li><a href="/about/"><i class="icon-android"></i> About</a></li>
+				<li><a href="/portfolio/"><i class="icon-laptop"></i> Portfolio</a></li>
+				<li><a href="/techblog/"><i class="icon-terminal"></i> Tech blog</a></li>
+			</ul>
+		</div>
+	</nav>
+</div>
+
+<header class="jumbotron" style="background-image: url(http://farm6.staticflickr.com/5538/9104824720_cd4bffffd2_h.jpg);">
+	<div class="container">
+		<h1><a href="/2012/02/how-to-make-ant-tasks-run-in-a-default-directory/"> How to make Apache Ant tasks run in a default directory</a></h1>
+		
+	</div>
+</header>
+
+
+<main class="container">
+<p><img src="http://farm8.staticflickr.com/7020/6668518895_0700a12958_m.jpg" width="240" height="160" alt="Apache takeoff" title="The other Apache, image courtesy of The U.S. Army" class="right" />I often open a new tab in my Terminal to run an <a href="http://ant.apache.org/">Ant</a> task, and often as not I forget to <code>cd</code> into the correct directory first and so I am greeted with this error:</p>
+<pre class="highlighted"><code class="ruby"><span class="variable">$ </span>ant compile
+<span class="constant">Buildfile</span><span class="symbol">:</span> build.xml does <span class="keyword">not</span> exist!
+<span class="constant">Build</span> failed</code></pre>
+<p>On my system, there&#8217;s only one main project that uses ant, so I almost always intend for ant tasks to be run against that project&#8217;s build.xml. So, I created a function that makes ant tasks &#8220;just work&#8221; no matter what directory I am in.</p>
+<!--more-->
+
+<h3 id="the-code">The code</h3>
+<p>First you&#8217;ll need to edit your <code>.profile</code> file. To do so, run the following command:</p>
+<p><code>nano ~/.profile</code></p>
+<p>Then copy-paste in this code, changing the <code>DEFAULT_ANT_DIR</code> to the path to your project (whatever folder has the build.xml file in it):</p>
+<pre class="highlighted"><code class="bash"><span class="comment"># make ant commands run in the default directory if</span>
+<span class="comment"># there is no build.xml in the current directory</span>
+
+export DEFAULT_ANT_DIR = /path/to/your/projects/folder/
+
+function magic-ant() {
+  <span class="keyword">if</span> <span class="test_condition">[ -e ./build.xml ]</span>
+    <span class="keyword">then</span>
+      ant $@                                                                    
+    <span class="keyword">else</span>
+      pushd DEFAULT_ANT_DIR
+      ant $@
+      popd
+  <span class="keyword">fi</span>
+}
+
+<span class="comment"># reset ant to avoid loops if you ever run `source ~/.profile` again</span>
+alias ant=`which ant`
+alias ant=<span class="string">"magic-ant"</span></code></pre>
+<p>Press <code>[Control]-O</code> then <code>[Enter]</code> to save and <code>[Control]-X</code> to exit nano.</p>
+<p>Lastly, run this command to import your changes (or just close and reopen your terminal):</p>
+<p><code>source ~/.profile</code></p>
+<h3 id="how-it-works">How it works</h3>
+<p>First, we define the path in a shell variable with the path to the default ant project. This isn&#8217;t absolutely required, but it keeps things tidy and simple.</p>
+<p><img src="http://farm1.staticflickr.com/95/235488979_24ead7f4dc_m.jpg" width="240" height="159" alt="Ant" class="left" />Next, we create the <code>magic-ant</code> function which checks if there is a build.xml file in the current directory. If so, it uses that one, otherwise it calls <code>pushd</code> to temporarily change directories to our default one, runs the ant command, and then calls <code>popd</code> to get back to whatever directory you started in. <code>$@</code> is an automatic variable that includes whatever parameters this function was called with.</p>
+<p>After that we use alias to reset the ant command in order to avoid endless loops where our magic-ant function calls itself instead of the real ant if you source. The command <code>which</code> returns the path to the program with the given name. Putting it in backticks (`) makes bash execute the command and return the result.</p>
+<p>Finally we alias <code>ant</code> to point to our new <code>magic-ant</code> function when run from the command line.</p>
+<p>The only downside is that I haven&#8217;t yet figured out how to make <a href="http://matthew.mceachen.us/blog/ant-bash-completion-on-mac-os-x-43.html">Ant task tab completion</a> work with this when you&#8217;re not in the project directory.</p>
+<p class="meta"><small class="photocredit"><b>Photo Credits:</b> 
+Apache feather photo by <a href="http://www.flickr.com/photos/rbowen/9104824720/">Rich Bowen</a>, 
+Apache helicopter photo by <a href="http://www.flickr.com/photos/soldiersmediacenter/6668518895/">The U.S. Army</a>,
+plexiglass ant photo by <a href="http://www.flickr.com/photos/dasqfamily/235488979/">Qfamily</a>
+</small></p>
+
+
+
+
+
+</main>
+
+</div> <!-- .over-footer -->
+
+<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-5 contact">
+				<h3>Contact Nathan</h3>
+				
+				<ul>
+					<li>
+						<a id="email">
+							<span class="icon-stack">
+								<i class="icon-check-empty icon-stack-base"></i>
+								<i class="icon-envelope"></i> 
+							</span>
+							<span id="email-text">nathan @ (this website)</span>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://github.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-github"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://stackoverflow.com/users/933879/nathan-friedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-stackexchange"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.linkedin.com/in/nathanfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-linkedin"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.facebook.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-facebook"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://twitter.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-twitter"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://plus.google.com/+NathanFriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-google-plus"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://steamcommunity.com/id/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-gamepad"></i>
+						</a>
+					</li>
+				</ul>
+			</div>
+			
+			<div class="col-md-3 sitemap">
+				<h3>Site Map</h3>
+				<ul class="icons-ul">
+					<li><a href="/"><i class="icon-li icon-home"></i> Home</a></li>
+					<li><a href="/about/"><i class="icon-li icon-android"></i>About</a></li>
+					<li><a href="/portfolio/"><i class="icon-li icon-laptop"></i>Portfolio</a></li>
+					<li><a href="/techblog/"><i class="icon-li icon-terminal"></i>Tech blog</a></li>
+				</ul>
+			</div>
+			
+			<div class="col-md-4 info">
+				<p>&copy; Nathan Friedly 2013</p>
+				<p><a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" class="pull-left" /></a> Content licensed under <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution</a>.</p>
+				<p><a href="https://github.com/nfriedly/nfriedly.com"><i class="icon-github"></i> Source code available on Github</a> under a <a href="http://opensource.org/licenses/MIT">MIT License</a></p>
+				
+				<p>Built with <a href="http://docpad.org">DocPad</a>, 
+					<a href="http://getbootstrap.com/">Bootstrap</a>, 
+					and <a href="http://www.nodejs.org/">Node.js</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+</footer>
+<div class="chromefix"></div>
+
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js" defer></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+	<script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-1735765-3']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+
+<script defer="defer"  src="/scripts/email.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How to get your apps ready for Facebook's OAuth 2.0 upgrade</title>
+<script>
+    // Github pages will send redirects to live.nfriedly.com, bypassing cloudfront. 
+    // This is to catch that and redirect the user back to cloudfront.
+    var l = window.location;
+    if (l.hostname == "live.nfriedly.com" && (l.href + document.cookie).indexOf('force-live') == -1) {
+        l.hostname = "nfriedly.com";
+    }
+</script>
+
+
+    <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js"></script><![endif]-->
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="DocPad v6.54.5" />
+<link rel="canonical" href="http://nfriedly.com/2011/09/javascript-changes-for-facebooks-oauth-2-0-upgrade/" />
+
+<script>
+function loadBackupCSS(url) {
+	var l = document.createElement('link');
+	l.rel = 'stylesheet';
+	l.href = url;
+	document.head.appendChild(l);
+}
+</script>
+<link href='http://fonts.googleapis.com/css?family=Raleway|Nobile:400,400italic,700' rel='stylesheet' type='text/css'>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/bootstrap.no-icons.min.css')">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/font-awesome/css/font-awesome.min.css')">
+<!--[if IE 7]>
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" rel="stylesheet">
+<![endif]-->
+<link href="/styles/font-mfizz/font-mfizz.css" rel="stylesheet">
+
+<link  rel="stylesheet" href="/styles/styles.css" />
+
+</head>
+<body class="post">
+
+<div class="over-footer">
+
+<div class="navbar-container">
+	<div class="container">
+		<a class="icon-stack menu-button pull-right" data-toggle="collapse" data-target="nav" href="#" title="Toggle navigation">
+			<i class="icon-sign-blank icon-stack-base"></i>
+			<i class="icon-reorder"></i>
+			<span class="sr-only">Toggle navigation</span>
+		</a>
+	</div>
+	<nav class="navbar collapse navbar-inverse navbar-static-top" role="navigation">
+		<div class="container">
+			<a class="navbar-brand" href="/">Nathan Friedly</a>
+			<ul class="nav navbar-nav">
+				<li><a href="/"><i class="icon-home"></i> Home</a></li>
+				<li><a href="/about/"><i class="icon-android"></i> About</a></li>
+				<li><a href="/portfolio/"><i class="icon-laptop"></i> Portfolio</a></li>
+				<li><a href="/techblog/"><i class="icon-terminal"></i> Tech blog</a></li>
+			</ul>
+		</div>
+	</nav>
+</div>
+
+<header class="jumbotron" style="background-image: url(http://farm5.staticflickr.com/4134/4859806074_0f5d6faa15_b.jpg);">
+	<div class="container">
+		<h1><a href="/2011/09/javascript-changes-for-facebooks-oauth-2-0-upgrade/"> How to get your apps ready for Facebook's OAuth 2.0 upgrade</a></h1>
+		
+	</div>
+</header>
+
+
+<main class="container">
+<p><img class="alignright" src="http://oauth.net/images/oauth-2-sm.png" alt="" width="124" height="123" style="margin-bottom: 0;" />I just finished a writeup on the necessary JS changes to support Facebook&#39;s OAuth 2.0 upgrade, and then Hilary did a followup post on the server-side. </p>
+<p>The upgrade enabled right now, but it gets forced out on October 1st. These two posts should give you all you need to know to get your site ready for Facebook&#39;s upgrade:</p>
+<!--more-->
+
+<p>Part 1: JavaScript - <a href="http://blog.sociablelabs.com/2011/09/16/javascript-changes-facebook-pauth-2-0-upgrade/">JavaScript changes for Facebook&#39;s OAuth 2.0 upgrade</a></p>
+<p>Part 2: PHP / Backend - <a href="http://blog.sociablelabs.com/2011/09/19/server-side-changes-facebook-oauth-2-0-upgrade/">Server Side changes for Facebook&#39;s OAuth 2.0 upgrade</a></p>
+<p>Also worth noting, there&#39;s a lot of good information on <a href="https://developers.facebook.com/blog/">Facebook&#39;s Developer Blog</a>.</p>
+<p class="meta"><small class="photocredit">Header photo by <a href="http://www.flickr.com/photos/johanl/4859806074/in/photostream/">Johan Larsson</a></small></p>
+
+
+
+
+</main>
+
+</div> <!-- .over-footer -->
+
+<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-5 contact">
+				<h3>Contact Nathan</h3>
+				
+				<ul>
+					<li>
+						<a id="email">
+							<span class="icon-stack">
+								<i class="icon-check-empty icon-stack-base"></i>
+								<i class="icon-envelope"></i> 
+							</span>
+							<span id="email-text">nathan @ (this website)</span>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://github.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-github"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://stackoverflow.com/users/933879/nathan-friedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-stackexchange"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.linkedin.com/in/nathanfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-linkedin"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.facebook.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-facebook"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://twitter.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-twitter"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://plus.google.com/+NathanFriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-google-plus"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://steamcommunity.com/id/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-gamepad"></i>
+						</a>
+					</li>
+				</ul>
+			</div>
+			
+			<div class="col-md-3 sitemap">
+				<h3>Site Map</h3>
+				<ul class="icons-ul">
+					<li><a href="/"><i class="icon-li icon-home"></i> Home</a></li>
+					<li><a href="/about/"><i class="icon-li icon-android"></i>About</a></li>
+					<li><a href="/portfolio/"><i class="icon-li icon-laptop"></i>Portfolio</a></li>
+					<li><a href="/techblog/"><i class="icon-li icon-terminal"></i>Tech blog</a></li>
+				</ul>
+			</div>
+			
+			<div class="col-md-4 info">
+				<p>&copy; Nathan Friedly 2013</p>
+				<p><a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" class="pull-left" /></a> Content licensed under <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution</a>.</p>
+				<p><a href="https://github.com/nfriedly/nfriedly.com"><i class="icon-github"></i> Source code available on Github</a> under a <a href="http://opensource.org/licenses/MIT">MIT License</a></p>
+				
+				<p>Built with <a href="http://docpad.org">DocPad</a>, 
+					<a href="http://getbootstrap.com/">Bootstrap</a>, 
+					and <a href="http://www.nodejs.org/">Node.js</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+</footer>
+<div class="chromefix"></div>
+
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js" defer></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+	<script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-1735765-3']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+
+<script defer="defer"  src="/scripts/email.js"></script>
+
+</body>
+</html>

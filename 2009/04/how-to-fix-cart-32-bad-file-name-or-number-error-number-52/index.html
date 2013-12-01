@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How to fix Cart 32 &quot;Bad file name or number Error Number = 52&quot;</title>
+<script>
+    // Github pages will send redirects to live.nfriedly.com, bypassing cloudfront. 
+    // This is to catch that and redirect the user back to cloudfront.
+    var l = window.location;
+    if (l.hostname == "live.nfriedly.com" && (l.href + document.cookie).indexOf('force-live') == -1) {
+        l.hostname = "nfriedly.com";
+    }
+</script>
+
+
+    <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js"></script><![endif]-->
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="DocPad v6.54.5" />
+<link rel="canonical" href="http://nfriedly.com/2009/04/how-to-fix-cart-32-bad-file-name-or-number-error-number-52/" />
+
+<script>
+function loadBackupCSS(url) {
+	var l = document.createElement('link');
+	l.rel = 'stylesheet';
+	l.href = url;
+	document.head.appendChild(l);
+}
+</script>
+<link href='http://fonts.googleapis.com/css?family=Raleway|Nobile:400,400italic,700' rel='stylesheet' type='text/css'>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/bootstrap.no-icons.min.css')">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet" onerror="loadBackupCSS('/styles/font-awesome/css/font-awesome.min.css')">
+<!--[if IE 7]>
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" rel="stylesheet">
+<![endif]-->
+<link href="/styles/font-mfizz/font-mfizz.css" rel="stylesheet">
+
+<link  rel="stylesheet" href="/styles/styles.css" />
+
+</head>
+<body class="post">
+
+<div class="over-footer">
+
+<div class="navbar-container">
+	<div class="container">
+		<a class="icon-stack menu-button pull-right" data-toggle="collapse" data-target="nav" href="#" title="Toggle navigation">
+			<i class="icon-sign-blank icon-stack-base"></i>
+			<i class="icon-reorder"></i>
+			<span class="sr-only">Toggle navigation</span>
+		</a>
+	</div>
+	<nav class="navbar collapse navbar-inverse navbar-static-top" role="navigation">
+		<div class="container">
+			<a class="navbar-brand" href="/">Nathan Friedly</a>
+			<ul class="nav navbar-nav">
+				<li><a href="/"><i class="icon-home"></i> Home</a></li>
+				<li><a href="/about/"><i class="icon-android"></i> About</a></li>
+				<li><a href="/portfolio/"><i class="icon-laptop"></i> Portfolio</a></li>
+				<li><a href="/techblog/"><i class="icon-terminal"></i> Tech blog</a></li>
+			</ul>
+		</div>
+	</nav>
+</div>
+
+<header class="jumbotron" style="background-image: url(http://farm9.staticflickr.com/8453/7968029824_1d1eb20771_b.jpg);">
+	<div class="container">
+		<h1><a href="/2009/04/how-to-fix-cart-32-bad-file-name-or-number-error-number-52/"> How to fix Cart 32 &quot;Bad file name or number Error Number = 52&quot;</a></h1>
+		
+	</div>
+</header>
+
+
+<main class="container">
+<p><a href="http://nfriedly.com/techblog/wp-content/uploads/2009/11/cart32-error.png" rel="lightbox"><img class="alignleft size-medium wp-image-244" title="cart32-error" src="http://nfriedly.com/techblog/wp-content/uploads/2009/11/cart32-error-300x202.png" alt="cart32-error" width="300" height="202" /></a>One of our Cart32 websites started having a problem recently where it would work great all the way until the last page of the checkout process, where it would give the error &#8220;Bad file name or number Error Number = 52&#8243;.</p>
+<p>Even worse, it charged the customers credit card each time, so a persistent customer could wind up with multiple charges which you would need to undo!</p>
+<!--more-->
+
+<h2 id="the-fix">The Fix</h2>
+<p><a href="http://nfriedly.com/techblog/wp-content/uploads/2009/11/cart32-fix.png" rel="lightbox"><img class="size-medium wp-image-245 alignright" title="cart32-fix" src="http://nfriedly.com/techblog/wp-content/uploads/2009/11/cart32-fix-300x235.png" alt="cart32-fix" width="300" height="235" /></a>Cart32&#8242;s support was not particularly helpful (both the <a href="http://www.cart32.com/kb.asp">Knowledge Base</a> and their phone support), but fortunately the fix was not very hard. The error basically means that it had trouble opening some file.</p>
+<p>In our case the name of the file that orders were saved in (<strong>Orders &gt; Order Setting &gt; Order Output File</strong>) had gotten goofed and was set to the url of the website. The fix was to change it back to &#8220;<strong>orders.txt</strong>&#8220;.</p>
+<h2 id="did-it-work-for-you-">Did it work for you?</h2>
+<p>Please let me know if you found this helpful. If you have some other website issue, cart 32 related or not, <a href="http://nfriedly.com/webdev">I may be able to help</a>.</p>
+<p>Doing impossible things with <a href="http://nfriedly.com/webdev/javascript">JavaScript and AJAX</a> is my specialty.  My contact info is in the footer.</p>
+
+
+
+	<p class="meta"><small class="photocredit"><b>Photo Credits:</b> 
+		<a href="http://www.flickr.com/photos/zionfiction/7968029824/">Header shopping cart photo by r. nial bradshaw</a>
+	</small></p>
+
+</main>
+
+</div> <!-- .over-footer -->
+
+<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-5 contact">
+				<h3>Contact Nathan</h3>
+				
+				<ul>
+					<li>
+						<a id="email">
+							<span class="icon-stack">
+								<i class="icon-check-empty icon-stack-base"></i>
+								<i class="icon-envelope"></i> 
+							</span>
+							<span id="email-text">nathan @ (this website)</span>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://github.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-github"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://stackoverflow.com/users/933879/nathan-friedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-stackexchange"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.linkedin.com/in/nathanfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-linkedin"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://www.facebook.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-facebook"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://twitter.com/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-twitter"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="https://plus.google.com/+NathanFriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-google-plus"></i>
+						</a>
+					</li>
+					<li>
+						<a class="icon-stack" href="http://steamcommunity.com/id/nfriedly">
+							<i class="icon-check-empty icon-stack-base"></i>
+							<i class="icon-gamepad"></i>
+						</a>
+					</li>
+				</ul>
+			</div>
+			
+			<div class="col-md-3 sitemap">
+				<h3>Site Map</h3>
+				<ul class="icons-ul">
+					<li><a href="/"><i class="icon-li icon-home"></i> Home</a></li>
+					<li><a href="/about/"><i class="icon-li icon-android"></i>About</a></li>
+					<li><a href="/portfolio/"><i class="icon-li icon-laptop"></i>Portfolio</a></li>
+					<li><a href="/techblog/"><i class="icon-li icon-terminal"></i>Tech blog</a></li>
+				</ul>
+			</div>
+			
+			<div class="col-md-4 info">
+				<p>&copy; Nathan Friedly 2013</p>
+				<p><a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" class="pull-left" /></a> Content licensed under <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution</a>.</p>
+				<p><a href="https://github.com/nfriedly/nfriedly.com"><i class="icon-github"></i> Source code available on Github</a> under a <a href="http://opensource.org/licenses/MIT">MIT License</a></p>
+				
+				<p>Built with <a href="http://docpad.org">DocPad</a>, 
+					<a href="http://getbootstrap.com/">Bootstrap</a>, 
+					and <a href="http://www.nodejs.org/">Node.js</a>.
+				</p>
+			</div>
+		</div>
+	</div>
+</footer>
+<div class="chromefix"></div>
+
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js" defer></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+	<script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-1735765-3']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+
+<script defer="defer"  src="/scripts/email.js"></script>
+
+</body>
+</html>
